@@ -157,10 +157,14 @@ function Tooltip({children,text}){
       {children}
       {show&&(
         <span style={{
-          position:"absolute",bottom:"calc(100% + 6px)",left:"50%",transform:"translateX(-50%)",
-          background:"#1a1a1a",color:"#fff",fontSize:11,lineHeight:1.5,
-          padding:"8px 12px",borderRadius:8,whiteSpace:"pre-line",
-          width:260,zIndex:99,boxShadow:"0 4px 12px rgba(0,0,0,0.2)",
+          position:"absolute",
+          bottom:"calc(100% + 8px)",
+          right:0,
+          background:"#1a1a1a",color:"#fff",fontSize:11,lineHeight:1.6,
+          padding:"10px 14px",borderRadius:8,whiteSpace:"pre-line",
+          width:260,
+          zIndex:9999,
+          boxShadow:"0 4px 16px rgba(0,0,0,0.3)",
           pointerEvents:"none",textAlign:"left",fontWeight:400,
         }}>{text}</span>
       )}
