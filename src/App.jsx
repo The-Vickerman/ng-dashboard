@@ -235,8 +235,8 @@ export default function App(){
   const rl     =REASON_FILTERS.find(r=>r.key===reason)?.label||"All";
   const sfx    =reason!=="all"?` · ${rl}`:"";
 
-  const TOOLTIP_RAW = "Raw: total calendar days from case open to close.\nIncludes all time regardless of status.";
-  const TOOLTIP_ADJ = "Adjusted median excludes days where the case was paused outside the analyst's control:\n\n• On Hold — case paused, waiting on customer action or external dependency\n• FourKites Working — internal FK team has taken over (integration, config work)\n• Awaiting Loads — carrier onboarded but waiting for live shipment data to verify\n\nExcluding these gives a fairer measure of how efficiently an analyst moves cases. ~84% of closed cases hit at least one of these statuses, averaging 38 excluded days when they do. Precision: ~±5d.";
+  const TOOLTIP_RAW = "Raw: all calendar days, open to close.";
+  const TOOLTIP_ADJ = "Adjusted: excludes days in On Hold, FourKites Working, or Awaiting Loads — statuses outside the analyst's control. ~84% of cases are affected, avg 38d excluded. Precision ±5d.";
 
   return(
     <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",padding:"20px 24px",background:"#fff",minHeight:"100vh"}}>
