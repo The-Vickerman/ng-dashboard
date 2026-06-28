@@ -193,6 +193,8 @@ export default function App() {
     };
   }, [sorted, ctype]);
 
+  const medKey = medMode==="raw"?"median":"medianAdj";
+
   // Team median this week — respects raw/adjusted toggle, uses "all" case type
   const teamMedianThisWk = useMemo(() => {
     const vals = sorted.map(r => r[medKey]["all"]).filter(v => v != null);
@@ -240,7 +242,6 @@ export default function App() {
   };
 
   const k = ctype;
-  const medKey = medMode==="raw"?"median":"medianAdj";
   const medDelta = teamMedianThisWk !== null && teamMedianPrevWk !== null
     ? teamMedianThisWk - teamMedianPrevWk : null;
 
@@ -428,4 +429,5 @@ export default function App() {
     </div>
   );
 }
+
 
