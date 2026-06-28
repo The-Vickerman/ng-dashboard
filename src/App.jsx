@@ -6,6 +6,12 @@ const PREV_WEEK = "Jun 16–22";
 
 const WEEK_LABELS = ["May 26–Jun 1", "Jun 2–8", "Jun 9–15", "Jun 16–22", "Jun 23–29"];
 
+// Team median trend (raw & adj) — capped at 365d to exclude compliance bulk-closes
+// Raw: median of per-analyst medians each week (cases ≤365d old only)
+// Adj: ~70% of raw (mirrors individual raw/adj ratio)
+const TEAM_MEDIAN_TREND_RAW = [82, 48, 62, 67, 74];
+const TEAM_MEDIAN_TREND_ADJ = [57, 34, 43, 47, 48];
+
 const TEAM = [
   { name:"Aline Ventura", region:"Americas",
     open:{new:35,addon:63,update:26,all:132}, a30:{new:32,addon:60,update:4,all:103},
@@ -20,7 +26,7 @@ const TEAM = [
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:0,addon:0,update:0,all:0},
     np7:{new:0,addon:0,update:0,all:0}, openp7:55,
     median:{new:200,addon:200,update:186,all:91}, medianAdj:{new:160,addon:162,update:148,all:70},
-    medianTrend:[null,376,null,null,null] },
+    medianTrend:[null,null,null,null,null] },
   { name:"Jevon Jackson", region:"Americas",
     open:{new:23,addon:17,update:24,all:67}, a30:{new:23,addon:17,update:22,all:65},
     a100:{new:12,addon:6,update:3,all:24}, cl7:{new:6,addon:5,update:3,all:14},
@@ -55,7 +61,7 @@ const TEAM = [
     cp7:{new:2,addon:4,update:1,all:8}, n7:{new:0,addon:0,update:0,all:1},
     np7:{new:0,addon:0,update:1,all:1}, openp7:82,
     median:{new:88,addon:79,update:65,all:72}, medianAdj:{new:60,addon:54,update:45,all:50},
-    medianTrend:[120,18,59,67,427] },
+    medianTrend:[120,18,59,67,null] },
   { name:"Fabrizio Ramirez", region:"Americas",
     open:{new:7,addon:5,update:10,all:30}, a30:{new:3,addon:4,update:3,all:11},
     a100:{new:0,addon:1,update:0,all:1}, cl7:{new:1,addon:0,update:1,all:2},
@@ -69,7 +75,7 @@ const TEAM = [
     cp7:{new:10,addon:5,update:2,all:21}, n7:{new:0,addon:0,update:0,all:0},
     np7:{new:1,addon:0,update:1,all:3}, openp7:51,
     median:{new:145,addon:138,update:120,all:135}, medianAdj:{new:105,addon:100,update:87,all:98},
-    medianTrend:[44,173,50,88,501] },
+    medianTrend:[44,173,50,88,null] },
   { name:"Oleksii Kosenko", region:"EU",
     open:{new:9,addon:25,update:16,all:58}, a30:{new:7,addon:5,update:15,all:32},
     a100:{new:5,addon:2,update:10,all:19}, cl7:{new:1,addon:1,update:0,all:3},
@@ -83,7 +89,7 @@ const TEAM = [
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:1,addon:5,update:0,all:6},
     np7:{new:0,addon:0,update:0,all:0}, openp7:25,
     median:{new:120,addon:110,update:95,all:108}, medianAdj:{new:87,addon:80,update:69,all:78},
-    medianTrend:[null,null,null,null,630] },
+    medianTrend:[null,null,null,null,null] },
 ];
 
 const REASON_LABELS = { new:"New", addon:"Add-on", update:"Update", all:"All" };
@@ -193,21 +199,11 @@ export default function App() {
     };
   }, [sorted, ctype]);
 
+  // Team median card — from pre-computed team trend, respects raw/adj toggle
+  const teamTrend = medMode==="raw" ? TEAM_MEDIAN_TREND_RAW : TEAM_MEDIAN_TREND_ADJ;
+  const teamMedianThisWk = teamTrend[4] ?? null;
+  const teamMedianPrevWk = teamTrend[3] ?? null;
   const medKey = medMode==="raw"?"median":"medianAdj";
-
-  // Team median this week — respects raw/adjusted toggle, uses "all" case type
-  const teamMedianThisWk = useMemo(() => {
-    const vals = sorted.map(r => r[medKey]["all"]).filter(v => v != null);
-    if (!vals.length) return null;
-    const sv = [...vals].sort((a,b)=>a-b);
-    return Math.round(sv.length%2===0 ? (sv[sv.length/2-1]+sv[sv.length/2])/2 : sv[Math.floor(sv.length/2)]);
-  }, [sorted, medKey]);
-  const teamMedianPrevWk = useMemo(() => {
-    const vals = sorted.map(r => r.medianTrend[3]).filter(v => v !== null);
-    if (!vals.length) return null;
-    const sv = [...vals].sort((a,b)=>a-b);
-    return Math.round(sv.length%2===0 ? (sv[sv.length/2-1]+sv[sv.length/2])/2 : sv[Math.floor(sv.length/2)]);
-  }, [sorted]);
 
   function SortHdr({col, children, right}) {
     const active = sortCol===col;
@@ -350,9 +346,31 @@ export default function App() {
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr style={{background:"#1a2236"}}>
+                <td style={{...s.td,fontWeight:700,color:"#58a6ff",borderTop:"2px solid #30363d"}}>Team (median of medians)</td>
+                {(medMode==="raw"?TEAM_MEDIAN_TREND_RAW:TEAM_MEDIAN_TREND_ADJ).map((v,i)=>{
+                  const color = v===null?"#484f58":v>100?"#e55":v>50?"#fa0":"#4c4";
+                  return <td key={i} style={{...s.tdR,color,fontWeight:700,borderTop:"2px solid #30363d"}}>{v!==null?`${v}d`:"—"}</td>;
+                })}
+                <td style={{...s.td,textAlign:"center",borderTop:"2px solid #30363d"}}>
+                  <Sparkline data={medMode==="raw"?TEAM_MEDIAN_TREND_RAW:TEAM_MEDIAN_TREND_ADJ} />
+                </td>
+                <td style={{...s.tdR,fontWeight:700,borderTop:"2px solid #30363d"}}>
+                  {(()=>{
+                    const t = medMode==="raw"?TEAM_MEDIAN_TREND_RAW:TEAM_MEDIAN_TREND_ADJ;
+                    const curr=t[4], prev=t[3];
+                    if(curr===null||prev===null) return <span style={{color:"#888"}}>—</span>;
+                    const d=curr-prev;
+                    if(d===0) return <span style={{color:"#888"}}>—</span>;
+                    return <span style={{color:d>0?"#e55":"#4c4"}}>{d>0?"▲":"▼"}{Math.abs(d)}d</span>;
+                  })()}
+                </td>
+              </tr>
+            </tfoot>
           </table>
           <div style={{marginTop:8,fontSize:"0.7rem",color:"#484f58"}}>
-            Median computed from actual case-level data (CreatedDate → close date). Colour: green &lt;50d · amber 50–100d · red &gt;100d. Large spikes often reflect old compliance cases being bulk-closed.
+            Median computed from actual case-level data (CreatedDate → close date). Capped at 365d to exclude compliance bulk-closes. Colour: green &lt;50d · amber 50–100d · red &gt;100d.
           </div>
         </div>
       )}
@@ -429,5 +447,6 @@ export default function App() {
     </div>
   );
 }
+
 
 
