@@ -193,18 +193,18 @@ export default function App() {
     };
   }, [sorted, ctype]);
 
-  // Team median this week (median of medians, excluding nulls)
+  // Team median this week — respects raw/adjusted toggle, uses "all" case type
   const teamMedianThisWk = useMemo(() => {
-    const vals = sorted.map(r => r.medianTrend[4]).filter(v => v !== null);
+    const vals = sorted.map(r => r[medKey]["all"]).filter(v => v != null);
     if (!vals.length) return null;
-    const s = [...vals].sort((a,b)=>a-b);
-    return Math.round(s.length%2===0 ? (s[s.length/2-1]+s[s.length/2])/2 : s[Math.floor(s.length/2)]);
-  }, [sorted]);
+    const sv = [...vals].sort((a,b)=>a-b);
+    return Math.round(sv.length%2===0 ? (sv[sv.length/2-1]+sv[sv.length/2])/2 : sv[Math.floor(sv.length/2)]);
+  }, [sorted, medKey]);
   const teamMedianPrevWk = useMemo(() => {
     const vals = sorted.map(r => r.medianTrend[3]).filter(v => v !== null);
     if (!vals.length) return null;
-    const s = [...vals].sort((a,b)=>a-b);
-    return Math.round(s.length%2===0 ? (s[s.length/2-1]+s[s.length/2])/2 : s[Math.floor(s.length/2)]);
+    const sv = [...vals].sort((a,b)=>a-b);
+    return Math.round(sv.length%2===0 ? (sv[sv.length/2-1]+sv[sv.length/2])/2 : sv[Math.floor(sv.length/2)]);
   }, [sorted]);
 
   function SortHdr({col, children, right}) {
@@ -428,3 +428,4 @@ export default function App() {
     </div>
   );
 }
+
