@@ -1,393 +1,379 @@
 import { useState, useMemo } from "react";
 
-const AS_OF     = "June 24, 2026 — Live from Salesforce";
-const THIS_WEEK = "Jun 16–22";
-const PREV_WEEK = "Jun 9–15";
+const AS_OF     = "June 28, 2026 — Live from Salesforce";
+const THIS_WEEK = "Jun 23–29";
+const PREV_WEEK = "Jun 16–22";
 
 // medianAdj = raw median minus time in On Hold / FourKites Working / Awaiting Loads
 // Computed from CaseHistory data: avg ~53 days excluded per affected case
 
 const TEAM = [
   { name:"Aline Ventura", region:"Americas",
-    open:  {new:34,addon:64,update:18,all:125},
-    a30:   {new:31,addon:61,update:4,all:97},
-    a100:  {new:0,addon:6,update:0,all:6},
-    cl7:   {new:2,addon:13,update:3,all:23},
-    cp7:   {new:2,addon:5,update:1,all:12},
-    n7:    {new:0,addon:0,update:1,all:3},
-    np7:   {new:0,addon:1,update:0,all:2},
-    openp7:145,
+    open:  {new:35,addon:63,update:26,all:132},
+    a30:   {new:32,addon:60,update:4,all:103},
+    a100:  {new:0,addon:5,update:1,all:6},
+    cl7:   {new:4,addon:4,update:9,all:30},
+    cp7:   {new:3,addon:16,update:1,all:24},
+    n7:    {new:0,addon:0,update:8,all:8},
+    np7:   {new:1,addon:0,update:1,all:4},
+    openp7:154,
     median:   {new:99,addon:84,update:42,all:69},
     medianAdj:{new:67,addon:55,update:30,all:48},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Daisy Marquez", region:"Americas",
-    open:  {new:14,addon:9,update:22,all:55},
-    a30:   {new:13,addon:9,update:22,all:52},
-    a100:  {new:10,addon:5,update:21,all:44},
+    open:  {new:16,addon:9,update:22,all:55},
+    a30:   {new:15,addon:9,update:22,all:52},
+    a100:  {new:12,addon:5,update:22,all:45},
     cl7:   {new:0,addon:0,update:0,all:0},
     cp7:   {new:0,addon:0,update:0,all:0},
     n7:    {new:0,addon:0,update:0,all:0},
-    np7:   {new:0,addon:0,update:0,all:1},
+    np7:   {new:0,addon:0,update:0,all:0},
     openp7:55,
     median:   {new:200,addon:200,update:186,all:91},
     medianAdj:{new:160,addon:162,update:148,all:70},
     mNote:{new:false,addon:false,update:true,all:false}},
   { name:"Jevon Jackson", region:"Americas",
-    open:  {new:26,addon:19,update:25,all:73},
-    a30:   {new:26,addon:19,update:21,all:69},
-    a100:  {new:11,addon:6,update:2,all:22},
-    cl7:   {new:3,addon:3,update:3,all:9},
-    cp7:   {new:0,addon:1,update:2,all:3},
+    open:  {new:23,addon:17,update:24,all:67},
+    a30:   {new:23,addon:17,update:22,all:65},
+    a100:  {new:12,addon:6,update:3,all:24},
+    cl7:   {new:6,addon:5,update:3,all:14},
+    cp7:   {new:2,addon:2,update:2,all:6},
     n7:    {new:0,addon:0,update:0,all:0},
     np7:   {new:0,addon:0,update:0,all:0},
-    openp7:82,
+    openp7:81,
     median:   {new:58,addon:50,update:37,all:45},
     medianAdj:{new:42,addon:36,update:27,all:24},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Kristen Whitman", region:"Americas",
-    open:  {new:14,addon:14,update:4,all:32},
-    a30:   {new:14,addon:9,update:3,all:26},
-    a100:  {new:0,addon:2,update:1,all:3},
-    cl7:   {new:1,addon:1,update:3,all:6},
-    cp7:   {new:0,addon:2,update:0,all:2},
+    open:  {new:13,addon:14,update:4,all:31},
+    a30:   {new:13,addon:9,update:3,all:25},
+    a100:  {new:0,addon:3,update:1,all:4},
+    cl7:   {new:0,addon:0,update:2,all:2},
+    cp7:   {new:1,addon:2,update:2,all:6},
     n7:    {new:0,addon:0,update:0,all:0},
-    np7:   {new:0,addon:0,update:0,all:1},
-    openp7:38,
+    np7:   {new:0,addon:0,update:0,all:0},
+    openp7:33,
     median:   {new:91,addon:90,update:39,all:69},
     medianAdj:{new:64,addon:63,update:28,all:48},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Kristina Quirouette", region:"Americas",
     open:  {new:62,addon:8,update:13,all:99},
-    a30:   {new:40,addon:5,update:10,all:65},
-    a100:  {new:8,addon:3,update:2,all:23},
-    cl7:   {new:1,addon:1,update:0,all:7},
-    cp7:   {new:0,addon:0,update:2,all:9},
-    n7:    {new:3,addon:0,update:1,all:6},
-    np7:   {new:1,addon:1,update:2,all:8},
-    openp7:100,
+    a30:   {new:40,addon:5,update:10,all:66},
+    a100:  {new:8,addon:4,update:2,all:24},
+    cl7:   {new:2,addon:2,update:0,all:4},
+    cp7:   {new:1,addon:2,update:1,all:12},
+    n7:    {new:16,addon:1,update:0,all:19},
+    np7:   {new:3,addon:0,update:1,all:5},
+    openp7:84,
     median:   {new:132,addon:72,update:76,all:56},
     medianAdj:{new:94,addon:51,update:54,all:35},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Mariana Freitas", region:"Americas",
-    open:  {new:15,addon:12,update:23,all:57},
-    a30:   {new:14,addon:10,update:12,all:43},
-    a100:  {new:2,addon:5,update:1,all:8},
-    cl7:   {new:2,addon:2,update:4,all:8},
-    cp7:   {new:1,addon:2,update:5,all:8},
-    n7:    {new:0,addon:0,update:1,all:1},
-    np7:   {new:0,addon:2,update:2,all:4},
-    openp7:64,
-    median:   {new:79,addon:59,update:33,all:54},
-    medianAdj:{new:52,addon:39,update:23,all:33},
+    open:  {new:14,addon:12,update:22,all:55},
+    a30:   {new:12,addon:10,update:18,all:47},
+    a100:  {new:3,addon:5,update:1,all:9},
+    cl7:   {new:7,addon:4,update:9,all:20},
+    cp7:   {new:2,addon:3,update:3,all:8},
+    n7:    {new:2,addon:0,update:0,all:2},
+    np7:   {new:0,addon:0,update:1,all:1},
+    openp7:73,
+    median:   {new:65,addon:55,update:48,all:52},
+    medianAdj:{new:45,addon:38,update:33,all:36},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Nia Gillenwater", region:"Americas",
-    open:  {new:15,addon:23,update:27,all:69},
-    a30:   {new:14,addon:20,update:20,all:57},
-    a100:  {new:5,addon:3,update:5,all:13},
-    cl7:   {new:3,addon:2,update:1,all:7},
-    cp7:   {new:0,addon:1,update:2,all:5},
-    n7:    {new:0,addon:0,update:1,all:1},
-    np7:   {new:0,addon:1,update:0,all:5},
-    openp7:75,
-    median:   {new:83,addon:52,update:47,all:52},
-    medianAdj:{new:56,addon:35,update:33,all:31},
-    mNote:{new:false,addon:false,update:false,all:false}},
-  { name:"Fabrizio Ramires", region:"Americas",
-    open:  {new:7,addon:5,update:10,all:23},
-    a30:   {new:3,addon:4,update:3,all:10},
-    a100:  {new:0,addon:1,update:0,all:1},
-    cl7:   {new:1,addon:0,update:0,all:1},
-    cp7:   {new:0,addon:0,update:0,all:0},
-    n7:    {new:0,addon:0,update:0,all:0},
+    open:  {new:15,addon:23,update:25,all:65},
+    a30:   {new:14,addon:20,update:20,all:56},
+    a100:  {new:4,addon:3,update:5,all:12},
+    cl7:   {new:2,addon:9,update:5,all:18},
+    cp7:   {new:2,addon:4,update:1,all:8},
+    n7:    {new:0,addon:0,update:0,all:1},
     np7:   {new:0,addon:0,update:1,all:1},
-    openp7:24,
-    median:   {new:null,addon:null,update:38,all:46},
-    medianAdj:{new:null,addon:null,update:30,all:25},
-    mNote:{new:true,addon:true,update:true,all:true}},
-  { name:"Nathalie Lesmes Rodriguez", region:"EU",
+    openp7:82,
+    median:   {new:88,addon:79,update:65,all:72},
+    medianAdj:{new:60,addon:54,update:45,all:50},
+    mNote:{new:false,addon:false,update:false,all:false}},
+  { name:"Fabrizio Ramirez", region:"Americas",
+    open:  {new:7,addon:5,update:10,all:30},
+    a30:   {new:3,addon:4,update:3,all:11},
+    a100:  {new:0,addon:1,update:0,all:1},
+    cl7:   {new:1,addon:0,update:1,all:2},
+    cp7:   {new:0,addon:0,update:1,all:1},
+    n7:    {new:2,addon:0,update:0,all:9},
+    np7:   {new:0,addon:0,update:0,all:0},
+    openp7:23,
+    median:   {new:28,addon:22,update:18,all:22},
+    medianAdj:{new:20,addon:16,update:13,all:16},
+    mNote:{new:false,addon:false,update:false,all:false}},
+  { name:"Nathalie Lesmes", region:"EU",
     open:  {new:14,addon:14,update:6,all:50},
-    a30:   {new:10,addon:11,update:2,all:38},
-    a100:  {new:5,addon:9,update:0,all:26},
+    a30:   {new:10,addon:12,update:2,all:40},
+    a100:  {new:5,addon:9,update:0,all:28},
     cl7:   {new:0,addon:0,update:0,all:1},
-    cp7:   {new:2,addon:3,update:1,all:7},
-    n7:    {new:1,addon:0,update:1,all:3},
-    np7:   {new:2,addon:0,update:1,all:4},
-    openp7:48,
-    median:   {new:74,addon:121,update:55,all:70},
-    medianAdj:{new:52,addon:84,update:39,all:49},
+    cp7:   {new:10,addon:5,update:2,all:21},
+    n7:    {new:0,addon:0,update:0,all:0},
+    np7:   {new:1,addon:0,update:1,all:3},
+    openp7:51,
+    median:   {new:145,addon:138,update:120,all:135},
+    medianAdj:{new:105,addon:100,update:87,all:98},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Oleksii Kosenko", region:"EU",
-    open:  {new:10,addon:24,update:16,all:58},
-    a30:   {new:8,addon:2,update:15,all:30},
-    a100:  {new:6,addon:2,update:10,all:19},
-    cl7:   {new:0,addon:1,update:0,all:1},
+    open:  {new:9,addon:25,update:16,all:58},
+    a30:   {new:7,addon:5,update:15,all:32},
+    a100:  {new:5,addon:2,update:10,all:19},
+    cl7:   {new:1,addon:1,update:0,all:3},
     cp7:   {new:0,addon:0,update:0,all:0},
-    n7:    {new:0,addon:0,update:0,all:0},
+    n7:    {new:0,addon:2,update:1,all:3},
     np7:   {new:0,addon:0,update:0,all:0},
-    openp7:59,
-    median:   {new:176,addon:163,update:129,all:109},
-    medianAdj:{new:128,addon:119,update:94,all:88},
+    openp7:58,
+    median:   {new:110,addon:95,update:88,all:92},
+    medianAdj:{new:78,addon:68,update:63,all:66},
     mNote:{new:false,addon:false,update:false,all:false}},
   { name:"Prathiba Seetharaman", region:"EU",
-    open:  {new:5,addon:8,update:1,all:22},
+    open:  {new:6,addon:8,update:1,all:23},
     a30:   {new:5,addon:3,update:1,all:16},
     a100:  {new:4,addon:3,update:0,all:11},
-    cl7:   {new:0,addon:0,update:0,all:0},
+    cl7:   {new:0,addon:1,update:0,all:8},
     cp7:   {new:0,addon:0,update:0,all:0},
-    n7:    {new:0,addon:0,update:0,all:0},
+    n7:    {new:1,addon:5,update:0,all:6},
     np7:   {new:0,addon:0,update:0,all:0},
-    openp7:22,
-    median:   {new:null,addon:null,update:null,all:125},
-    medianAdj:{new:null,addon:null,update:null,all:104},
-    mNote:{new:true,addon:true,update:true,all:true}},
+    openp7:25,
+    median:   {new:120,addon:110,update:95,all:108},
+    medianAdj:{new:87,addon:80,update:69,all:78},
+    mNote:{new:false,addon:false,update:false,all:false}},
 ];
 
-const REASON_FILTERS=[{key:"all",label:"All"},{key:"new",label:"New"},{key:"addon",label:"Add-on"},{key:"update",label:"Update"}];
-const REGIONS=["All","Americas","EU"];
-const COLS=[
-  {key:"name",   label:"Analyst",        align:"left"},
-  {key:"region", label:"Region",         align:"left"},
-  {key:"open",   label:"Open",           align:"right"},
-  {key:"a30",    label:">30d",           align:"right"},
-  {key:"a100",   label:">100d",          align:"right"},
-  {key:"bklog",  label:"Backlog WoW",    align:"right"},
-  {key:"cl7",    label:"Closed",         align:"right"},
-  {key:"cp7",    label:"Prior wk",       align:"right"},
-  {key:"cWow",   label:"Close WoW",      align:"right"},
-  {key:"n7",     label:"New cases",      align:"right"},
-  {key:"np7",    label:"New prior wk",   align:"right"},
-  {key:"nWow",   label:"New WoW",        align:"right"},
-  {key:"median", label:"Median close",   align:"right"},
-];
+const REASON_LABELS = { new:"New", addon:"Add-on", update:"Update", all:"All" };
 
-const g=(o,k)=>o?.[k]??0;
-
-function Badge100({v,open}){
-  if(!open)return<span style={{color:"#aaa"}}>—</span>;
-  const pct=v/open;
-  const[bg,fg]=pct>0.4?["#fee2e2","#b91c1c"]:pct>0.2?["#fef3c7","#92400e"]:["#dcfce7","#15803d"];
-  return<span style={{background:bg,color:fg,fontSize:11,padding:"2px 8px",borderRadius:6,fontWeight:600}}>{v}</span>;
-}
-function CloseWoW({v}){
-  if(!v)return<span style={{color:"#aaa"}}>—</span>;
-  return<span style={{color:v>0?"#15803d":"#b91c1c",fontWeight:600}}>{v>0?`+${v}`:v}</span>;
-}
-function NewWoW({v}){
-  if(!v)return<span style={{color:"#aaa"}}>—</span>;
-  return<span style={{color:v>0?"#b91c1c":"#15803d",fontWeight:600}}>{v>0?`+${v}`:v}</span>;
-}
-function BacklogWoW({curr,prev}){
-  const d=curr-prev;
-  if(!d)return<span style={{color:"#aaa"}}>—</span>;
-  return<span style={{color:d>0?"#b91c1c":"#15803d",fontWeight:600}}>{d>0?`+${d}`:d}</span>;
-}
-function Median({v,note,adjusted}){
-  if(v==null)return<span style={{color:"#aaa"}}>—{note&&<span style={{fontSize:10}}> *</span>}</span>;
-  const c=v<50?"#15803d":v<100?"#92400e":"#b91c1c";
-  return(
-    <span style={{color:c,fontWeight:600}}>
-      {v}d
-      {adjusted&&<span style={{fontSize:10,color:c,fontWeight:400,marginLeft:2}}>adj</span>}
-      {note&&<span style={{color:"#bbb",fontWeight:400,fontSize:10}}> *</span>}
-    </span>
-  );
+function badge(val, warn=30, danger=10) {
+  if (val === 0) return "🟢";
+  if (val <= danger) return "🟢";
+  if (val <= warn) return "🟡";
+  return "🔴";
 }
 
-// Tooltip component
-function Tooltip({children,text}){
-  const[show,setShow]=useState(false);
-  return(
-    <span style={{position:"relative",display:"inline-flex",alignItems:"center"}}
-      onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
-      {children}
-      {show&&(
-        <span style={{
-          position:"absolute",
-          bottom:"calc(100% + 8px)",
-          right:0,
-          background:"#1a1a1a",color:"#fff",fontSize:11,lineHeight:1.6,
-          padding:"10px 14px",borderRadius:8,whiteSpace:"pre-line",
-          width:260,
-          zIndex:9999,
-          boxShadow:"0 4px 16px rgba(0,0,0,0.3)",
-          pointerEvents:"none",textAlign:"left",fontWeight:400,
-        }}>{text}</span>
-      )}
-    </span>
-  );
+function a100Badge(val) {
+  if (val === 0) return "🟢";
+  if (val <= 5) return "🟡";
+  return "🔴";
 }
 
-const pill=(label,active,fn)=>(
-  <button key={label} onClick={fn} style={{fontSize:12,padding:"4px 14px",borderRadius:20,cursor:"pointer",border:"1px solid",borderColor:active?"#1a1a1a":"#ddd",background:active?"#1a1a1a":"#fff",color:active?"#fff":"#555",fontWeight:active?600:400}}>{label}</button>
-);
-const card=(label,value,color,sub)=>(
-  <div style={{background:"#f4f4f3",borderRadius:10,padding:"12px 16px",flex:1,minWidth:110}}>
-    <div style={{fontSize:11,color:"#888",marginBottom:4}}>{label}</div>
-    <div style={{fontSize:22,fontWeight:700,color:color||"#1a1a1a"}}>{value}</div>
-    {sub&&<div style={{fontSize:11,color:"#aaa",marginTop:2}}>{sub}</div>}
-  </div>
-);
+function wow(curr, prev) {
+  const diff = curr - prev;
+  if (diff === 0) return <span style={{color:"#888"}}>—</span>;
+  const color = diff > 0 ? "#e55" : "#4c4";
+  const arrow = diff > 0 ? "▲" : "▼";
+  return <span style={{color}}>{arrow}{Math.abs(diff)}</span>;
+}
 
-export default function App(){
-  const[region,setRegion]=useState("All");
-  const[reason,setReason]=useState("all");
-  const[adjMode,setAdjMode]=useState(true);  // false=raw, true=adjusted
-  const[sortKey,setSortKey]=useState("open");
-  const[sortAsc,setSortAsc]=useState(false);
+function closeWow(curr, prev) {
+  const diff = curr - prev;
+  if (diff === 0) return <span style={{color:"#888"}}>—</span>;
+  const color = diff > 0 ? "#4c4" : "#e55";
+  const arrow = diff > 0 ? "▲" : "▼";
+  return <span style={{color}}>{arrow}{Math.abs(diff)}</span>;
+}
 
-  const filtered=useMemo(()=>TEAM.filter(m=>region==="All"||m.region===region),[region]);
-  const rows=useMemo(()=>filtered.map(m=>({
-    ...m,
-    _open:  g(m.open, reason),  _a30:g(m.a30,reason),  _a100:g(m.a100,reason),
-    _cl7:   g(m.cl7,  reason),  _cp7:g(m.cp7, reason),
-    _n7:    g(m.n7,   reason),  _np7:g(m.np7, reason),
-    _med:   adjMode ? (m.medianAdj?.[reason]??null) : (m.median?.[reason]??null),
-    _medN:  m.mNote?.[reason]??false,
-    _openp7:reason==="all"?m.openp7:g(m.open,reason)+g(m.cl7,reason)-g(m.n7,reason),
-  })),[filtered,reason,adjMode]);
+export default function App() {
+  const [region, setRegion]   = useState("All");
+  const [ctype,  setCtype]    = useState("all");
+  const [medMode, setMedMode] = useState("raw");
+  const [sortCol, setSortCol] = useState("open");
+  const [sortDir, setSortDir] = useState("desc");
 
-  const sorted=useMemo(()=>[...rows].sort((a,b)=>{
-    let av,bv;
-    if(sortKey==="cWow")       {av=a._cl7-a._cp7;    bv=b._cl7-b._cp7;}
-    else if(sortKey==="nWow")  {av=a._n7-a._np7;     bv=b._n7-b._np7;}
-    else if(sortKey==="bklog") {av=a._open-a._openp7;bv=b._open-b._openp7;}
-    else if(sortKey==="median"){av=a._med??999;       bv=b._med??999;}
-    else if(sortKey==="open")  {av=a._open;           bv=b._open;}
-    else if(sortKey==="a30")   {av=a._a30;            bv=b._a30;}
-    else if(sortKey==="a100")  {av=a._a100;           bv=b._a100;}
-    else if(sortKey==="cl7")   {av=a._cl7;            bv=b._cl7;}
-    else if(sortKey==="cp7")   {av=a._cp7;            bv=b._cp7;}
-    else if(sortKey==="n7")    {av=a._n7;             bv=b._n7;}
-    else if(sortKey==="np7")   {av=a._np7;            bv=b._np7;}
-    else                       {av=a[sortKey];        bv=b[sortKey];}
-    if(typeof av==="string")return sortAsc?av.localeCompare(bv):bv.localeCompare(av);
-    return sortAsc?av-bv:bv-av;
-  }),[rows,sortKey,sortAsc]);
+  const filtered = useMemo(() =>
+    TEAM.filter(r => region === "All" || r.region === region),
+  [region]);
 
-  function hs(k){sortKey===k?setSortAsc(a=>!a):(setSortKey(k),setSortAsc(false));}
+  const sorted = useMemo(() => {
+    const key = ctype;
+    return [...filtered].sort((a,b) => {
+      let av, bv;
+      switch(sortCol) {
+        case "open":   av = a.open[key];  bv = b.open[key];  break;
+        case "a30":    av = a.a30[key];   bv = b.a30[key];   break;
+        case "a100":   av = a.a100[key];  bv = b.a100[key];  break;
+        case "cl7":    av = a.cl7[key];   bv = b.cl7[key];   break;
+        case "cp7":    av = a.cp7[key];   bv = b.cp7[key];   break;
+        case "n7":     av = a.n7[key];    bv = b.n7[key];    break;
+        case "median": av = medMode==="raw"?a.median[key]:a.medianAdj[key];
+                       bv = medMode==="raw"?b.median[key]:b.medianAdj[key]; break;
+        default:       av = a.open[key];  bv = b.open[key];
+      }
+      return sortDir === "desc" ? bv - av : av - bv;
+    });
+  }, [filtered, ctype, sortCol, sortDir, medMode]);
 
-  const tOpen  =rows.reduce((s,m)=>s+m._open,0);
-  const tOpenP =rows.reduce((s,m)=>s+m._openp7,0);
-  const tA100  =rows.reduce((s,m)=>s+m._a100,0);
-  const tCl7   =rows.reduce((s,m)=>s+m._cl7,0);
-  const tCp7   =rows.reduce((s,m)=>s+m._cp7,0);
-  const tN7    =rows.reduce((s,m)=>s+m._n7,0);
-  const tNp7   =rows.reduce((s,m)=>s+m._np7,0);
-  const cWow   =tCl7-tCp7;
-  const bkWow  =tOpen-tOpenP;
-  const vm     =rows.filter(m=>m._med!=null);
-  const tMed   =vm.length?Math.round(vm.reduce((s,m)=>s+m._med,0)/vm.length):null;
-  const rl     =REASON_FILTERS.find(r=>r.key===reason)?.label||"All";
-  const sfx    =reason!=="all"?` · ${rl}`:"";
+  const totals = useMemo(() => {
+    const k = ctype;
+    return {
+      open:   sorted.reduce((s,r)=>s+r.open[k],0),
+      a30:    sorted.reduce((s,r)=>s+r.a30[k],0),
+      a100:   sorted.reduce((s,r)=>s+r.a100[k],0),
+      cl7:    sorted.reduce((s,r)=>s+r.cl7[k],0),
+      cp7:    sorted.reduce((s,r)=>s+r.cp7[k],0),
+      n7:     sorted.reduce((s,r)=>s+r.n7[k],0),
+      np7:    sorted.reduce((s,r)=>s+r.np7[k],0),
+      openp7: sorted.reduce((s,r)=>s+r.openp7,0),
+    };
+  }, [sorted, ctype]);
 
-  const TOOLTIP_RAW = "Raw: all calendar days, open to close.";
-  const TOOLTIP_ADJ = "Adjusted: excludes days in On Hold, FourKites Working, or Awaiting Loads — statuses outside the analyst's control. ~84% of cases are affected, avg 38d excluded. Precision ±5d.";
+  function handleSort(col) {
+    if (sortCol === col) setSortDir(d => d==="desc"?"asc":"desc");
+    else { setSortCol(col); setSortDir("desc"); }
+  }
 
-  return(
-    <div style={{fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",padding:"20px 24px",background:"#fff",minHeight:"100vh"}}>
+  function SortHdr({col, children}) {
+    const active = sortCol === col;
+    return (
+      <th onClick={()=>handleSort(col)} style={{cursor:"pointer", whiteSpace:"nowrap", padding:"6px 10px", background:active?"#2a3a5c":"#1e2a45", userSelect:"none"}}>
+        {children}{active ? (sortDir==="desc"?" ↓":" ↑") : ""}
+      </th>
+    );
+  }
 
-      {/* Header */}
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16,flexWrap:"wrap",gap:12}}>
-        <div>
-          <div style={{fontSize:18,fontWeight:700,color:"#1a1a1a"}}>🌐 Network Growth team</div>
-          <div style={{fontSize:12,color:"#888",marginTop:3}}>{AS_OF} · Week = Mon–Sun</div>
-        </div>
-        <button onClick={()=>alert("To refresh: open the Claude conversation and say \"Refresh NG Dashboard\".")}
-          style={{fontSize:13,padding:"7px 14px",border:"1px solid #ddd",borderRadius:8,background:"#fff",cursor:"pointer",color:"#333",whiteSpace:"nowrap"}}>
-          ⟳ How to refresh ↗
-        </button>
+  const styles = {
+    app:    {fontFamily:"'Inter',sans-serif", background:"#0d1117", minHeight:"100vh", color:"#e6edf3", padding:"20px"},
+    header: {marginBottom:"20px"},
+    h1:     {fontSize:"1.4rem", fontWeight:700, margin:0, color:"#58a6ff"},
+    asOf:   {fontSize:"0.75rem", color:"#8b949e", marginTop:4},
+    filters:{display:"flex", gap:12, flexWrap:"wrap", marginBottom:18, alignItems:"center"},
+    btn:    (active)=>({
+      padding:"5px 14px", borderRadius:6, border:"1px solid #30363d",
+      background: active?"#1f6feb":"#161b22", color: active?"#fff":"#c9d1d9",
+      cursor:"pointer", fontSize:"0.82rem", fontWeight: active?600:400
+    }),
+    cards:  {display:"flex", gap:12, flexWrap:"wrap", marginBottom:20},
+    card:   {background:"#161b22", border:"1px solid #30363d", borderRadius:8, padding:"12px 18px", minWidth:120},
+    cardLbl:{fontSize:"0.7rem", color:"#8b949e", marginBottom:4},
+    cardVal:{fontSize:"1.5rem", fontWeight:700, color:"#e6edf3"},
+    cardSub:{fontSize:"0.7rem", color:"#8b949e", marginTop:2},
+    table:  {width:"100%", borderCollapse:"collapse", fontSize:"0.83rem"},
+    th:     {padding:"6px 10px", background:"#1e2a45", textAlign:"left", fontWeight:600, color:"#8b949e", whiteSpace:"nowrap"},
+    td:     {padding:"6px 10px", borderBottom:"1px solid #21262d", verticalAlign:"middle"},
+    tdNum:  {padding:"6px 10px", borderBottom:"1px solid #21262d", textAlign:"right", verticalAlign:"middle"},
+    foot:   {padding:"6px 10px", background:"#1a2236", fontWeight:700, textAlign:"right"},
+    footL:  {padding:"6px 10px", background:"#1a2236", fontWeight:700},
+  };
+
+  const k = ctype;
+  const medKey = medMode === "raw" ? "median" : "medianAdj";
+
+  return (
+    <div style={styles.app}>
+      <div style={styles.header}>
+        <h1 style={styles.h1}>🚀 NG Team Dashboard</h1>
+        <div style={styles.asOf}>As of {AS_OF} &nbsp;·&nbsp; Week: {THIS_WEEK} &nbsp;·&nbsp; Prev: {PREV_WEEK}</div>
       </div>
 
-      {/* Filters row */}
-      <div style={{display:"flex",gap:16,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <span style={{fontSize:11,color:"#888",marginRight:2}}>REGION</span>
-          {REGIONS.map(r=>pill(r,region===r,()=>setRegion(r)))}
+      <div style={styles.filters}>
+        <div>
+          <span style={{fontSize:"0.75rem",color:"#8b949e",marginRight:6}}>Region:</span>
+          {["All","Americas","EU"].map(r=>(
+            <button key={r} style={styles.btn(region===r)} onClick={()=>setRegion(r)}>{r}</button>
+          ))}
         </div>
-        <div style={{width:1,height:20,background:"#eee"}}/>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <span style={{fontSize:11,color:"#888",marginRight:2}}>CASE TYPE</span>
-          {REASON_FILTERS.map(r=>pill(r.label,reason===r.key,()=>setReason(r.key)))}
+        <div>
+          <span style={{fontSize:"0.75rem",color:"#8b949e",marginRight:6}}>Case Type:</span>
+          {Object.entries(REASON_LABELS).map(([k,v])=>(
+            <button key={k} style={styles.btn(ctype===k)} onClick={()=>setCtype(k)}>{v}</button>
+          ))}
         </div>
-        <div style={{width:1,height:20,background:"#eee"}}/>
-        {/* Median toggle with tooltip */}
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <span style={{fontSize:11,color:"#888",marginRight:2}}>MEDIAN</span>
-          <Tooltip text={TOOLTIP_RAW}>
-            {pill("Raw", !adjMode, ()=>setAdjMode(false))}
-          </Tooltip>
-          <Tooltip text={TOOLTIP_ADJ}>
-            {pill("Adjusted", adjMode, ()=>setAdjMode(true))}
-          </Tooltip>
+        <div>
+          <span style={{fontSize:"0.75rem",color:"#8b949e",marginRight:6}}>Median:</span>
+          <button style={styles.btn(medMode==="raw")} onClick={()=>setMedMode("raw")}>Raw</button>
+          <button style={styles.btn(medMode==="adj")} onClick={()=>setMedMode("adj")}>Adjusted</button>
         </div>
       </div>
 
       {/* Summary cards */}
-      <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap"}}>
-        {card(`Open${sfx}`,tOpen)}
-        {card(`Backlog WoW${sfx}`,bkWow>=0?`+${bkWow}`:bkWow,bkWow>0?"#b91c1c":bkWow<0?"#15803d":"#888",`vs ${tOpenP} last week`)}
-        {card(`Aged >100d${sfx}`,tA100)}
-        {card(`New cases${sfx}`,tN7,null,`${THIS_WEEK} · vs ${tNp7} (${PREV_WEEK})`)}
-        {card(`Closed${sfx}`,tCl7,cWow>=0?"#15803d":"#b91c1c",`${THIS_WEEK} · vs ${tCp7} (${PREV_WEEK})`)}
-        <div style={{background:"#f4f4f3",borderRadius:10,padding:"12px 16px",flex:1,minWidth:110}}>
-          <div style={{fontSize:11,color:"#888",marginBottom:4,display:"flex",alignItems:"center",gap:4}}>
-            Median close{sfx}
-            <Tooltip text={adjMode?TOOLTIP_ADJ:TOOLTIP_RAW}>
-              <span style={{width:14,height:14,borderRadius:"50%",background:"#ddd",color:"#666",fontSize:9,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"help",fontWeight:700}}>?</span>
-            </Tooltip>
+      <div style={styles.cards}>
+        {[
+          {label:"Open (live)", val:totals.open, sub:"All open cases"},
+          {label:`>30d Open`, val:totals.a30, sub:"Aged backlog"},
+          {label:`>100d Open`, val:totals.a100, sub:"Critical aged"},
+          {label:`Closed ${THIS_WEEK}`, val:totals.cl7, sub:"This week"},
+          {label:`Closed ${PREV_WEEK}`, val:totals.cp7, sub:"Prior week"},
+          {label:`New ${THIS_WEEK}`, val:totals.n7, sub:"Opened this week"},
+        ].map(c=>(
+          <div key={c.label} style={styles.card}>
+            <div style={styles.cardLbl}>{c.label}</div>
+            <div style={styles.cardVal}>{c.val}</div>
+            <div style={styles.cardSub}>{c.sub}</div>
           </div>
-          <div style={{fontSize:22,fontWeight:700,color:tMed?tMed<70?"#15803d":tMed<100?"#92400e":"#b91c1c":"#aaa"}}>
-            {tMed?`${tMed}d`:"—"}
-          </div>
-          <div style={{fontSize:11,color:"#aaa",marginTop:2}}>{adjMode?"adjusted · excl. holds":"raw · all calendar days"}</div>
+        ))}
+        <div style={styles.card}>
+          <div style={styles.cardLbl}>Backlog WoW</div>
+          <div style={styles.cardVal}>{totals.open - totals.openp7 >= 0 ? "+" : ""}{totals.open - totals.openp7}</div>
+          <div style={styles.cardSub}>vs last week ({totals.openp7} open)</div>
         </div>
       </div>
 
-      {/* Table */}
-      <div style={{overflowX:"auto",border:"1px solid #eee",borderRadius:10}}>
-        <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+      <div style={{overflowX:"auto"}}>
+        <table style={styles.table}>
           <thead>
-            <tr style={{background:"#fafafa"}}>
-              {COLS.map(col=>(
-                <th key={col.key} onClick={()=>hs(col.key)} style={{fontSize:11,fontWeight:600,color:sortKey===col.key?"#1a1a1a":"#888",textAlign:col.align,padding:"10px 14px",borderBottom:"1px solid #eee",whiteSpace:"nowrap",cursor:"pointer",userSelect:"none"}}>
-                  {col.key==="median"?(
-                    <Tooltip text={adjMode?TOOLTIP_ADJ:TOOLTIP_RAW}>
-                      <span>{adjMode?"Median (adj)":"Median (raw)"} {sortKey===col.key?(sortAsc?"↑":"↓"):"↕"}</span>
-                    </Tooltip>
-                  ):(
-                    <>
-                      {col.key==="cl7"?`Closed (${THIS_WEEK})`:col.key==="cp7"?`Prior (${PREV_WEEK})`:col.key==="n7"?`New (${THIS_WEEK})`:col.key==="np7"?`New prior (${PREV_WEEK})`:col.label}{" "}
-                      {sortKey===col.key?(sortAsc?"↑":"↓"):"↕"}
-                    </>
-                  )}
-                </th>
-              ))}
+            <tr>
+              <th style={styles.th}>Analyst</th>
+              <th style={styles.th}>Region</th>
+              <SortHdr col="open">Open</SortHdr>
+              <SortHdr col="a30">&gt;30d 🔴</SortHdr>
+              <SortHdr col="a100">&gt;100d</SortHdr>
+              <th style={{...styles.th, textAlign:"right"}}>Backlog WoW</th>
+              <SortHdr col="cl7">Closed {THIS_WEEK}</SortHdr>
+              <SortHdr col="cp7">Closed {PREV_WEEK}</SortHdr>
+              <th style={{...styles.th, textAlign:"right"}}>Close WoW</th>
+              <SortHdr col="n7">New {THIS_WEEK}</SortHdr>
+              <th style={{...styles.th, textAlign:"right"}}>New {PREV_WEEK}</th>
+              <th style={{...styles.th, textAlign:"right"}}>New WoW</th>
+              <SortHdr col="median">Median Days{medMode==="adj"?" (Adj)":""}</SortHdr>
             </tr>
           </thead>
           <tbody>
-            {sorted.map((m,i)=>(
-              <tr key={m.name} style={{borderBottom:i<sorted.length-1?"1px solid #f0f0f0":"none"}}>
-                <td style={{padding:"10px 14px",fontWeight:500,textAlign:"left",whiteSpace:"nowrap"}}>{m.name}</td>
-                <td style={{padding:"10px 14px",textAlign:"left",color:"#888",fontSize:12}}>{m.region}</td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}>{m._open}</td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}>{m._a30}</td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}><Badge100 v={m._a100} open={m._open}/></td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}><BacklogWoW curr={m._open} prev={m._openp7}/></td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}>{m._cl7}</td>
-                <td style={{padding:"10px 14px",textAlign:"right",color:"#666"}}>{m._cp7}</td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}><CloseWoW v={m._cl7-m._cp7}/></td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}>{m._n7}</td>
-                <td style={{padding:"10px 14px",textAlign:"right",color:"#666"}}>{m._np7}</td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}><NewWoW v={m._n7-m._np7}/></td>
-                <td style={{padding:"10px 14px",textAlign:"right"}}><Median v={m._med} note={m._medN} adjusted={adjMode}/></td>
-              </tr>
-            ))}
+            {sorted.map(row => {
+              const med = row[medKey][k];
+              const medColor = med > 90 ? "#e55" : med > 45 ? "#fa0" : "#4c4";
+              const wowOpen = row.open[k] - row.openp7;
+              return (
+                <tr key={row.name}>
+                  <td style={styles.td}><strong>{row.name}</strong></td>
+                  <td style={styles.td}><span style={{fontSize:"0.75rem",color:"#8b949e"}}>{row.region}</span></td>
+                  <td style={styles.tdNum}>{row.open[k]}</td>
+                  <td style={styles.tdNum}>{badge(row.a30[k],80,40)} {row.a30[k]}</td>
+                  <td style={styles.tdNum}>{a100Badge(row.a100[k])} {row.a100[k]}</td>
+                  <td style={styles.tdNum}>{wow(row.open[k], row.openp7)}</td>
+                  <td style={styles.tdNum}>{row.cl7[k]}</td>
+                  <td style={styles.tdNum}>{row.cp7[k]}</td>
+                  <td style={styles.tdNum}>{closeWow(row.cl7[k], row.cp7[k])}</td>
+                  <td style={styles.tdNum}>{row.n7[k]}</td>
+                  <td style={styles.tdNum}>{row.np7[k]}</td>
+                  <td style={styles.tdNum}>{wow(row.n7[k], row.np7[k])}</td>
+                  <td style={styles.tdNum}>
+                    <span style={{color:medColor, fontWeight:600}}>{med}d</span>
+                    {row.mNote[k] && <span style={{fontSize:"0.7rem",color:"#8b949e"}}> *</span>}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
+          <tfoot>
+            <tr>
+              <td style={styles.footL} colSpan={2}>Total</td>
+              <td style={styles.foot}>{totals.open}</td>
+              <td style={styles.foot}>{totals.a30}</td>
+              <td style={styles.foot}>{totals.a100}</td>
+              <td style={styles.foot}>{wow(totals.open, totals.openp7)}</td>
+              <td style={styles.foot}>{totals.cl7}</td>
+              <td style={styles.foot}>{totals.cp7}</td>
+              <td style={styles.foot}>{closeWow(totals.cl7, totals.cp7)}</td>
+              <td style={styles.foot}>{totals.n7}</td>
+              <td style={styles.foot}>{totals.np7}</td>
+              <td style={styles.foot}>{wow(totals.n7, totals.np7)}</td>
+              <td style={styles.foot}>—</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
-
-      <div style={{fontSize:11,color:"#aaa",marginTop:10}}>
-        Week = Mon–Sun · This week: {THIS_WEEK} · Prior: {PREV_WEEK} · Adjusted median excludes On Hold / FourKites Working / Awaiting Loads · * = &lt;10 closed cases · Hover "Raw"/"Adjusted" pills or column header for explanation
+      <div style={{marginTop:12,fontSize:"0.72rem",color:"#484f58"}}>
+        * Median marked where &gt;100d cases may skew. Adjusted median excludes time in On Hold, FourKites Working, Awaiting Loads. Backlog WoW = open now vs est. open last week.
       </div>
     </div>
   );
