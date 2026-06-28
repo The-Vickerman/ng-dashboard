@@ -199,11 +199,19 @@ export default function App() {
     };
   }, [sorted, ctype]);
 
-  // Team median card — from pre-computed team trend, respects raw/adj toggle
-  const teamTrend = medMode==="raw" ? TEAM_MEDIAN_TREND_RAW : TEAM_MEDIAN_TREND_ADJ;
-  const teamMedianThisWk = teamTrend[4] ?? null;
-  const teamMedianPrevWk = teamTrend[3] ?? null;
   const medKey = medMode==="raw"?"median":"medianAdj";
+
+  // Team median this week — respects both case type filter AND raw/adj toggle
+  const teamMedianThisWk = useMemo(() => {
+    const vals = sorted.map(r => r[medKey][ctype]).filter(v => v != null);
+    if (!vals.length) return null;
+    const sv = [...vals].sort((a,b)=>a-b);
+    return Math.round(sv.length%2===0 ? (sv[sv.length/2-1]+sv[sv.length/2])/2 : sv[Math.floor(sv.length/2)]);
+  }, [sorted, medKey, ctype]);
+
+  // Prior week reference from pre-computed team trend (all-types baseline)
+  const teamTrend = medMode==="raw" ? TEAM_MEDIAN_TREND_RAW : TEAM_MEDIAN_TREND_ADJ;
+  const teamMedianPrevWk = teamTrend[3] ?? null;
 
   function SortHdr({col, children, right}) {
     const active = sortCol===col;
@@ -447,6 +455,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 
