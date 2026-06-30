@@ -49,17 +49,27 @@ function fmtDate(d) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
 }
 
+const SLA_WEEKS = 16; // target onboarding duration
+
 function healthLabel(p) {
   if (p.pct === 100) return { label: "Complete", color: "#4c4" };
+  if (!p.kickoff) return { label: "No dates", color: "#8b949e" };
+
+  const wks = weeksElapsed(p.kickoff);
+
+  // SLA breach is the primary signal — elapsed time vs. the 16-week target,
+  // regardless of target close date or % complete.
+  if (wks > SLA_WEEKS * 1.5) return { label: `${wks}w — way past SLA`, color: "#e55" };
+  if (wks > SLA_WEEKS) return { label: `${wks}w — past SLA`, color: "#e55" };
+
+  // Within SLA window: blockers and target-close-date still matter
   const close = p.estClose ? new Date(p.estClose) : null;
   if (close && close < TODAY) return { label: "Overdue", color: "#e55" };
-  if (!p.kickoff) return { label: "No dates", color: "#8b949e" };
   if (p.blockers >= 3) return { label: `${p.blockers} blockers`, color: "#e55" };
   if (p.blockers > 0) return { label: `${p.blockers} blocker${p.blockers > 1 ? "s" : ""}`, color: "#fa0" };
-  const wks = weeksElapsed(p.kickoff);
-  if (p.pct === 0 && wks && wks > 20) return { label: "Stalled?", color: "#fa0" };
-  if (p.pct >= 67) return { label: "On track", color: "#4c4" };
-  return { label: "In progress", color: "#58a6ff" };
+  if (p.pct === 0 && wks && wks > SLA_WEEKS * 0.5) return { label: "Stalled?", color: "#fa0" };
+  if (wks > SLA_WEEKS * 0.75) return { label: `${wks}w — watch`, color: "#fa0" };
+  return { label: "On track", color: "#4c4" };
 }
 
 function FunnelBar({ funnel }) {
@@ -122,8 +132,8 @@ export default function NAProjects() {
       if (naFilter && p.na !== naFilter) return false;
       if (healthFilter) {
         const h = healthLabel(p).label;
-        if (healthFilter === "overdue" && !["Overdue", "Stalled?"].includes(h) && !h.includes("blocker")) return false;
-        if (healthFilter === "on-track" && !["On track", "In progress"].includes(h)) return false;
+        if (healthFilter === "overdue" && !h.includes("SLA") && h !== "Overdue" && h !== "Stalled?" && !h.includes("blocker")) return false;
+        if (healthFilter === "on-track" && h !== "On track" && !h.includes("watch")) return false;
         if (healthFilter === "complete" && h !== "Complete") return false;
       }
       return true;
@@ -177,7 +187,7 @@ export default function NAProjects() {
               <th style={s.th}>Customer</th>
               <th style={s.th}>NA</th>
               <th style={s.th}>Kickoff</th>
-              <th style={s.th}>Wks</th>
+              <th style={s.th}>Wks (16w SLA)</th>
               <th style={s.th}>Target close</th>
               <th style={{ ...s.th, textAlign: "center" }}>Carriers</th>
               <th style={{ ...s.th, width: 140 }}>Onboarding funnel</th>
@@ -199,7 +209,9 @@ export default function NAProjects() {
                     <td style={{ ...s.td, fontWeight: 600 }}>{p.customer}</td>
                     <td style={{ ...s.td, color: "#8b949e" }}>{p.na.split(" ")[0]}</td>
                     <td style={s.td}>{fmtDate(p.kickoff)}</td>
-                    <td style={s.td}>{wks != null ? `${wks}w` : "—"}</td>
+                    <td style={{ ...s.td, color: wks != null && wks > SLA_WEEKS ? "#e55" : wks != null && wks > SLA_WEEKS * 0.75 ? "#fa0" : "#e6edf3", fontWeight: wks != null && wks > SLA_WEEKS ? 700 : 400 }}>
+                      {wks != null ? `${wks}w` : "—"}
+                    </td>
                     <td style={{ ...s.td, color: isOverdue ? "#e55" : "#e6edf3", fontWeight: isOverdue ? 700 : 400 }}>
                       {fmtDate(p.estClose)}{isOverdue ? " ⚠" : ""}
                     </td>
@@ -238,6 +250,8 @@ export default function NAProjects() {
       </div>
       <div style={{ marginTop: 12, fontSize: "0.72rem", color: "#484f58" }}>
         Funnel: created → invited (past "New") → responded (Carrier Working+) → onboarded (Complete) vs. blocked (On Hold / Removed). Snapshot refreshed manually from Salesforce.
+        <br />
+        Health: target onboarding SLA is 16 weeks from kickoff. &gt;16w = past SLA (red), &gt;24w = way past SLA (red), &gt;12w = watch (amber) — elapsed time is the primary signal, independent of target close date or % complete.
       </div>
     </div>
   );
