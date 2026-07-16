@@ -1,16 +1,16 @@
 import { useState, useMemo } from "react";
 
-const AS_OF     = "July 16, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians recomputed from full Jan 1, 2026+ closed-case census (true medians, not carried-forward estimates)";
+const AS_OF     = "July 16, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians recomputed from full Jan 1, 2026+ closed-case census, \"All\" excludes null-reason cases (bulk/administrative closes, not onboarding work)";
 const THIS_WEEK = "Jul 10–16";
 const PREV_WEEK = "Jul 3–9";
 
 const WEEK_LABELS = ["Jun 9–15", "Jun 16–22", "Jun 23–29", "Jun 30–Jul 6", "Jul 16 (recompute)"];
 
 // Team median trend (raw & adj) — capped at 365d to exclude compliance bulk-closes
-// Latest point (Jul 16) is a TRUE median from full Jan 2026+ closed-case census per analyst, pooled.
+// Latest point (Jul 16) is a TRUE median from full Jan 2026+ closed-case census per analyst, pooled, excluding null-reason cases.
 // Prior points were carried-forward estimates.
-const TEAM_MEDIAN_TREND_RAW = [48, 62, 67, 74, 35];
-const TEAM_MEDIAN_TREND_ADJ = [34, 43, 47, 48, 28];
+const TEAM_MEDIAN_TREND_RAW = [48, 62, 67, 74, 41];
+const TEAM_MEDIAN_TREND_ADJ = [34, 43, 47, 48, 31];
 
 const TEAM = [
   { name:"Aline Ventura", region:"Americas",
@@ -18,15 +18,15 @@ const TEAM = [
     a100:{new:1,addon:3,update:0,all:4}, cl7:{new:1,addon:1,update:7,all:10},
     cp7:{new:0,addon:0,update:4,all:4}, n7:{new:0,addon:0,update:0,all:2},
     np7:{new:0,addon:0,update:0,all:0}, openp7:134,
-    median:{new:76,addon:62,update:22,all:26}, medianAdj:{new:40,addon:34,update:22,all:23},
-    medianTrend:[108,60,64,26,26] },
+    median:{new:76,addon:62,update:22,all:32}, medianAdj:{new:40,addon:34,update:22,all:27},
+    medianTrend:[108,60,64,26,32] },
   { name:"Daisy Marquez", region:"Americas",
     open:{new:12,addon:9,update:21,all:52}, a30:{new:12,addon:9,update:21,all:52},
     a100:{new:9,addon:9,update:21,all:47}, cl7:{new:0,addon:0,update:0,all:0},
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:0,addon:0,update:0,all:0},
     np7:{new:0,addon:0,update:0,all:0}, openp7:52,
-    median:{new:93,addon:52,update:179,all:52}, medianAdj:{new:80,addon:46,update:157,all:46},
-    medianTrend:[null,null,null,null,52] },
+    median:{new:93,addon:52,update:179,all:93}, medianAdj:{new:46,addon:52,update:179,all:52},
+    medianTrend:[null,null,null,null,93] },
   { name:"Jevon Jackson", region:"Americas",
     open:{new:45,addon:25,update:15,all:88}, a30:{new:24,addon:14,update:14,all:55},
     a100:{new:15,addon:5,update:5,all:28}, cl7:{new:1,addon:3,update:6,all:10},
@@ -39,15 +39,15 @@ const TEAM = [
     a100:{new:0,addon:2,update:2,all:4}, cl7:{new:0,addon:0,update:0,all:0},
     cp7:{new:2,addon:2,update:1,all:5}, n7:{new:1,addon:0,update:1,all:2},
     np7:{new:1,addon:0,update:0,all:1}, openp7:17,
-    median:{new:42,addon:45,update:17,all:33}, medianAdj:{new:28,addon:45,update:17,all:17},
-    medianTrend:[200,85,36,328,33] },
+    median:{new:42,addon:45,update:17,all:42}, medianAdj:{new:28,addon:45,update:17,all:28},
+    medianTrend:[200,85,36,328,42] },
   { name:"Kristina Quirouette", region:"Americas",
     open:{new:61,addon:10,update:9,all:101}, a30:{new:41,addon:9,update:7,all:69},
     a100:{new:6,addon:2,update:1,all:19}, cl7:{new:0,addon:0,update:2,all:5},
     cp7:{new:0,addon:1,update:0,all:1}, n7:{new:1,addon:0,update:0,all:3},
     np7:{new:1,addon:0,update:0,all:4}, openp7:103,
-    median:{new:63,addon:58,update:50,all:41}, medianAdj:{new:63,addon:28,update:50,all:36},
-    medianTrend:[44,64,110,91,41] },
+    median:{new:63,addon:58,update:50,all:62}, medianAdj:{new:63,addon:28,update:50,all:56},
+    medianTrend:[44,64,110,91,62] },
   { name:"Mariana Freitas", region:"Americas",
     open:{new:18,addon:13,update:17,all:54}, a30:{new:12,addon:9,update:9,all:36},
     a100:{new:2,addon:3,update:1,all:6}, cl7:{new:0,addon:0,update:1,all:1},
@@ -60,8 +60,8 @@ const TEAM = [
     a100:{new:1,addon:3,update:6,all:11}, cl7:{new:1,addon:1,update:1,all:5},
     cp7:{new:0,addon:2,update:3,all:5}, n7:{new:1,addon:1,update:2,all:7},
     np7:{new:0,addon:1,update:1,all:5}, openp7:67,
-    median:{new:84,addon:61,update:26,all:33}, medianAdj:{new:80,addon:43,update:24,all:25},
-    medianTrend:[18,59,67,null,33] },
+    median:{new:84,addon:61,update:26,all:47}, medianAdj:{new:80,addon:43,update:24,all:28},
+    medianTrend:[18,59,67,null,47] },
   { name:"Fabrizio Ramirez", region:"Americas",
     open:{new:6,addon:11,update:19,all:44}, a30:{new:4,addon:10,update:5,all:20},
     a100:{new:0,addon:1,update:0,all:1}, cl7:{new:1,addon:1,update:0,all:2},
@@ -74,22 +74,22 @@ const TEAM = [
     a100:{new:8,addon:8,update:0,all:25}, cl7:{new:0,addon:0,update:0,all:3},
     cp7:{new:1,addon:1,update:3,all:10}, n7:{new:1,addon:0,update:0,all:2},
     np7:{new:0,addon:0,update:0,all:1}, openp7:44,
-    median:{new:45,addon:56,update:39,all:42}, medianAdj:{new:32,addon:52,update:15,all:32},
+    median:{new:45,addon:56,update:39,all:42}, medianAdj:{new:32,addon:52,update:15,all:33},
     medianTrend:[173,50,88,null,42] },
   { name:"Oleksii Kosenko", region:"EU",
     open:{new:11,addon:27,update:17,all:63}, a30:{new:11,addon:25,update:15,all:58},
     a100:{new:8,addon:2,update:12,all:26}, cl7:{new:0,addon:0,update:0,all:0},
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:0,addon:0,update:1,all:1},
     np7:{new:0,addon:0,update:0,all:0}, openp7:62,
-    median:{new:160,addon:31,update:1,all:31}, medianAdj:{new:109,addon:30,update:1,all:30},
-    medianTrend:[13,222,null,138,31] },
+    median:{new:160,addon:31,update:1,all:76}, medianAdj:{new:109,addon:30,update:1,all:60},
+    medianTrend:[13,222,null,138,76] },
   { name:"Prathiba Seetharaman", region:"EU",
     open:{new:7,addon:12,update:2,all:29}, a30:{new:5,addon:5,update:1,all:18},
     a100:{new:4,addon:3,update:0,all:13}, cl7:{new:0,addon:0,update:0,all:0},
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:0,addon:0,update:0,all:1},
     np7:{new:0,addon:0,update:1,all:2}, openp7:28,
-    median:{new:0,addon:99,update:0,all:95}, medianAdj:{new:0,addon:84,update:0,all:86},
-    medianTrend:[null,null,null,null,95] },
+    median:{new:0,addon:99,update:0,all:99}, medianAdj:{new:0,addon:84,update:0,all:84},
+    medianTrend:[null,null,null,null,99] },
 ];
 
 const REASON_LABELS = { new:"New", addon:"Add-on", update:"Update", all:"All" };
