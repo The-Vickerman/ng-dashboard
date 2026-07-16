@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 
+const LAST_REFRESHED = "July 16, 2026 · 5:30 PM CT";
 const AS_OF     = "July 16, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians recomputed from full Jan 1, 2026+ closed-case census, \"All\" excludes null-reason cases (bulk/administrative closes, not onboarding work)";
 const THIS_WEEK = "Jul 10–16";
 const PREV_WEEK = "Jul 3–9";
@@ -228,6 +229,7 @@ function NGTeam() {
     app:   {fontFamily:"'Inter',sans-serif",background:"#0d1117",minHeight:"100vh",color:"#e6edf3",padding:"20px"},
     h1:    {fontSize:"1.4rem",fontWeight:700,margin:0,color:"#58a6ff"},
     asOf:  {fontSize:"0.75rem",color:"#8b949e",marginTop:4},
+    lastRefreshed: {fontSize:"0.95rem",color:"#58a6ff",fontWeight:700,marginTop:2},
     filt:  {display:"flex",gap:12,flexWrap:"wrap",marginBottom:18,alignItems:"center"},
     btn:   (a)=>({padding:"5px 14px",borderRadius:6,border:"1px solid #30363d",
       background:a?"#1f6feb":"#161b22",color:a?"#fff":"#c9d1d9",cursor:"pointer",
@@ -253,6 +255,7 @@ function NGTeam() {
     <div>
       <div style={{marginBottom:20}}>
         <h1 style={s.h1}>🚀 NG Team Dashboard</h1>
+        <div style={s.lastRefreshed}>🕒 Last refreshed: {LAST_REFRESHED}</div>
         <div style={s.asOf}>As of {AS_OF} &nbsp;·&nbsp; Week: {THIS_WEEK} &nbsp;·&nbsp; Prev: {PREV_WEEK}</div>
       </div>
 
