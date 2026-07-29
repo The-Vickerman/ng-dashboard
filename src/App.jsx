@@ -1,6 +1,7 @@
 import { useState } from "react";
 import NGTeam from "./NGTeam.jsx";
 import NAProjects from "./NAProjects.jsx";
+import OceanAir from "./OceanAir.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("ng");
@@ -17,12 +18,13 @@ export default function App() {
   });
 
   return (
-    <div style={{ fontFamily: "'Inter',sans-serif", background: "#0d1117", minHeight: "100vh", color: "#e6edf3", padding: "20px" }}>
+    <div style={{ fontFamily: "'''Inter''',sans-serif", background: "#0d1117", minHeight: "100vh", color: "#e6edf3", padding: "20px" }}>
       <div style={{ display: "flex", gap: 10, marginBottom: 22 }}>
         <button style={tabBtn(tab === "ng")} onClick={() => setTab("ng")}>🚀 NG Team</button>
         <button style={tabBtn(tab === "na")} onClick={() => setTab("na")}>📦 NA Projects</button>
+        <button style={tabBtn(tab === "oa")} onClick={() => setTab("oa")}>🚢 Ocean/Air</button>
       </div>
-      {tab === "ng" ? <NGTeam /> : <NAProjects />}
+      {tab === "ng" ? <NGTeam /> : tab === "na" ? <NAProjects /> : <OceanAir />}
     </div>
   );
 }
