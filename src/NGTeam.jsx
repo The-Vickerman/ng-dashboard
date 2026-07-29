@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 
-const LAST_REFRESHED = "July 29, 2026 · 1:36 PM CT";
+const LAST_REFRESHED = "July 29, 2026 · 1:58 PM CT";
 const AS_OF     = "July 29, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians as of Jul 16 recompute (Jan 1, 2026+ closed-case census, null-reason excluded)";
 const THIS_WEEK = "Jul 23–29";
 const PREV_WEEK = "Jul 16–22";
