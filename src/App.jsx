@@ -18,7 +18,7 @@ export default function App() {
   });
 
   return (
-    <div style={{ fontFamily: "'''Inter''',sans-serif", background: "#0d1117", minHeight: "100vh", color: "#e6edf3", padding: "20px" }}>
+    <div style={{ fontFamily: "'Inter',sans-serif", background: "#0d1117", minHeight: "100vh", color: "#e6edf3", padding: "20px" }}>
       <div style={{ display: "flex", gap: 10, marginBottom: 22 }}>
         <button style={tabBtn(tab === "ng")} onClick={() => setTab("ng")}>🚀 NG Team</button>
         <button style={tabBtn(tab === "na")} onClick={() => setTab("na")}>📦 NA Projects</button>
