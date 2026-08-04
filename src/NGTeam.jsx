@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 
 const LAST_REFRESHED = "August 4, 2026 · 11:35 AM CT";
-const AS_OF     = "August 4, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians as of Jul 16 recompute (Jan 1, 2026+ closed-case census, null-reason excluded). Note: open-count accuracy for at least one analyst (Kristina) is under active investigation — a live discrepancy vs. her own count was found and hasn't been root-caused yet.";
+const AS_OF     = "August 4, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians as of Jul 16 recompute (Jan 1, 2026+ closed-case census, null-reason excluded)";
 const THIS_WEEK = "Jul 29–Aug 4";
 const PREV_WEEK = "Jul 25–31";
 
