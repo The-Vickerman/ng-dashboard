@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 
-const LAST_REFRESHED = "August 17, 2026 · 1:05 PM CT";
-const AS_OF     = "August 17, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians carried forward from the Aug 14 full clean recompute (all 11 analysts, same Jan 1 2026+ census methodology, null-reason excluded) — only 3 days old, next full recompute due monthly or on request";
+const LAST_REFRESHED = "August 17, 2026 · 1:05 PM CT (medians recomputed Aug 24, 2026)";
+const AS_OF     = "Open/aged/closed/new counts as of Aug 17 — now stale, a live recount is due. Medians freshly recomputed Aug 24 — full Jan 1 2026+ census, null-reason excluded, consistent across all 11 analysts (Aug 14 base data plus verified delta of cases closed since).";
 const THIS_WEEK = "Aug 11–17";
 const PREV_WEEK = "Aug 8–14";
 
@@ -26,21 +26,21 @@ const TEAM = [
     a100:{new:13,addon:8,update:20,all:49}, cl7:{new:0,addon:0,update:1,all:1},
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:0,addon:0,update:0,all:0},
     np7:{new:0,addon:0,update:0,all:0}, openp7:53,
-    median:{new:93,addon:52,update:137,all:93}, medianAdj:{new:46,addon:52,update:137,all:52},
+    median:{new:116,addon:52,update:137,all:94}, medianAdj:{new:92,addon:52,update:137,all:74},
     medianTrend:[93,93,93,93,93] },
   { name:"Jevon Jackson", region:"Americas",
     open:{new:38,addon:28,update:11,all:81}, a30:{new:36,addon:24,update:11,all:74},
     a100:{new:10,addon:4,update:9,all:26}, cl7:{new:4,addon:3,update:1,all:8},
     cp7:{new:2,addon:0,update:1,all:3}, n7:{new:0,addon:0,update:0,all:0},
     np7:{new:0,addon:0,update:0,all:0}, openp7:89,
-    median:{new:66,addon:48,update:41,all:46}, medianAdj:{new:44,addon:33,update:29,all:33},
+    median:{new:57,addon:48,update:42,all:46}, medianAdj:{new:39,addon:33,update:29,all:34},
     medianTrend:[42,42,46,46,46] },
   { name:"Kristen Whitman", region:"Americas",
     open:{new:3,addon:4,update:3,all:10}, a30:{new:3,addon:2,update:3,all:8},
     a100:{new:1,addon:1,update:1,all:3}, cl7:{new:0,addon:1,update:0,all:2},
     cp7:{new:0,addon:1,update:0,all:1}, n7:{new:0,addon:2,update:0,all:5},
     np7:{new:0,addon:0,update:0,all:0}, openp7:7,
-    median:{new:45,addon:56,update:17,all:45}, medianAdj:{new:30,addon:56,update:17,all:33},
+    median:{new:45,addon:56,update:17,all:45}, medianAdj:{new:30,addon:56,update:17,all:34},
     medianTrend:[42,42,45,45,45] },
   { name:"Kristina Quirouette", region:"Americas",
     open:{new:36,addon:6,update:3,all:69}, a30:{new:36,addon:6,update:3,all:68},
@@ -54,28 +54,28 @@ const TEAM = [
     a100:{new:5,addon:3,update:2,all:15}, cl7:{new:1,addon:0,update:2,all:3},
     cp7:{new:0,addon:2,update:5,all:7}, n7:{new:0,addon:0,update:1,all:1},
     np7:{new:0,addon:3,update:11,all:14}, openp7:68,
-    median:{new:51,addon:44,update:31,all:40}, medianAdj:{new:35,addon:41,update:29,all:34},
+    median:{new:54,addon:44,update:31,all:40}, medianAdj:{new:36,addon:41,update:29,all:34},
     medianTrend:[40,40,40,40,40] },
   { name:"Nia Gillenwater", region:"Americas",
     open:{new:13,addon:29,update:24,all:69}, a30:{new:13,addon:28,update:16,all:58},
     a100:{new:7,addon:13,update:8,all:29}, cl7:{new:0,addon:2,update:5,all:9},
     cp7:{new:0,addon:1,update:1,all:2}, n7:{new:0,addon:4,update:2,all:7},
     np7:{new:0,addon:1,update:2,all:4}, openp7:71,
-    median:{new:84,addon:62,update:27,all:48}, medianAdj:{new:80,addon:48,update:26,all:30},
+    median:{new:84,addon:62,update:26,all:47}, medianAdj:{new:80,addon:50,update:26,all:29},
     medianTrend:[47,47,48,48,48] },
   { name:"Fabrizio Ramirez", region:"Americas",
     open:{new:7,addon:11,update:46,all:71}, a30:{new:4,addon:5,update:20,all:36},
     a100:{new:0,addon:0,update:1,all:1}, cl7:{new:0,addon:1,update:3,all:4},
     cp7:{new:2,addon:4,update:5,all:11}, n7:{new:0,addon:0,update:1,all:1},
     np7:{new:0,addon:2,update:13,all:15}, openp7:74,
-    median:{new:52,addon:41,update:36,all:40}, medianAdj:{new:46,addon:40,update:30,all:38},
+    median:{new:52,addon:54,update:31,all:38}, medianAdj:{new:46,addon:39,update:30,all:36},
     medianTrend:[34,34,40,40,40] },
   { name:"Nathalie Lesmes", region:"EU",
     open:{new:11,addon:16,update:2,all:49}, a30:{new:10,addon:12,update:2,all:27},
     a100:{new:4,addon:2,update:0,all:6}, cl7:{new:0,addon:1,update:0,all:1},
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:1,addon:1,update:1,all:3},
     np7:{new:0,addon:0,update:0,all:0}, openp7:47,
-    median:{new:54,addon:100,update:44,all:51}, medianAdj:{new:42,addon:78,update:30,all:44},
+    median:{new:54,addon:100,update:44,all:50}, medianAdj:{new:42,addon:73,update:30,all:44},
     medianTrend:[42,42,51,51,51] },
   { name:"Oleksii Kosenko", region:"EU",
     open:{new:10,addon:14,update:16,all:45}, a30:{new:10,addon:14,update:16,all:45},
@@ -89,7 +89,7 @@ const TEAM = [
     a100:{new:3,addon:3,update:1,all:7}, cl7:{new:1,addon:0,update:0,all:1},
     cp7:{new:1,addon:1,update:0,all:2}, n7:{new:1,addon:1,update:0,all:2},
     np7:{new:0,addon:0,update:0,all:2}, openp7:39,
-    median:{new:0,addon:70,update:18,all:28}, medianAdj:{new:0,addon:62,update:18,all:28},
+    median:{new:184,addon:70,update:18,all:34}, medianAdj:{new:127,addon:62,update:18,all:34},
     medianTrend:[99,99,28,28,28] },
 ];
 
