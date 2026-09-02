@@ -1,24 +1,24 @@
 import { useState, useMemo } from "react";
 
-const LAST_REFRESHED = "August 14, 2026 · 7:05 AM CT";
-const AS_OF = "August 14, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians from Jul 29 census, null-reason excluded — now ~2 weeks stale, due for a fresh recompute. Kept separate from the NG Team roster and NG Team summary totals.";
-const THIS_WEEK = "Aug 8–14";
-const PREV_WEEK = "Aug 6–12";
+const LAST_REFRESHED = "September 2, 2026 · 12:20 AM CT";
+const AS_OF = "September 2, 2026 — Live from Salesforce (open/aged/closed/new, trailing 7d); medians from Jul 29 census, null-reason excluded — now over a month stale, due for a fresh recompute. Kept separate from the NG Team roster and NG Team summary totals.";
+const THIS_WEEK = "Aug 26–Sep 1";
+const PREV_WEEK = "Aug 18–24";
 
 // Johnny Mei (Lead Ocean & Air Carrier Onboarding) and Krishnasharmila R (Project Specialist)
 // Excluded from the main NG Team dashboard and its Total/Team summary.
 const OCEAN_AIR = [
   { name:"Johnny Mei", role:"Lead Ocean & Air Carrier Onboarding",
-    open:{new:14,addon:58,update:5,all:91}, a30:{new:13,addon:54,update:4,all:83},
-    a100:{new:10,addon:28,update:0,all:45},
-    cl7:{new:0,addon:0,update:0,all:0}, cp7:{new:0,addon:1,update:0,all:1},
-    n7:{new:0,addon:1,update:0,all:1}, np7:{new:0,addon:0,update:0,all:0},
+    open:{new:15,addon:65,update:5,all:105}, a30:{new:14,addon:57,update:5,all:88},
+    a100:{new:13,addon:32,update:0,all:51},
+    cl7:{new:0,addon:0,update:0,all:0}, cp7:{new:0,addon:0,update:0,all:0},
+    n7:{new:1,addon:6,update:0,all:8}, np7:{new:0,addon:1,update:0,all:1},
     median:{new:0,addon:3,update:28,all:14}, medianAdj:{new:0,addon:3,update:28,all:6} },
   { name:"Krishnasharmila R", role:"Project Specialist",
-    open:{new:21,addon:66,update:2,all:94}, a30:{new:19,addon:61,update:2,all:87},
-    a100:{new:10,addon:31,update:1,all:45},
-    cl7:{new:2,addon:3,update:0,all:6}, cp7:{new:2,addon:3,update:0,all:6},
-    n7:{new:0,addon:0,update:0,all:0}, np7:{new:0,addon:0,update:0,all:0},
+    open:{new:25,addon:74,update:2,all:106}, a30:{new:20,addon:67,update:2,all:94},
+    a100:{new:14,addon:52,update:1,all:70},
+    cl7:{new:0,addon:0,update:0,all:1}, cp7:{new:2,addon:3,update:0,all:6},
+    n7:{new:0,addon:0,update:0,all:1}, np7:{new:0,addon:0,update:0,all:0},
     median:{new:43,addon:50,update:23,all:43}, medianAdj:{new:29,addon:43,update:23,all:43} },
 ];
 
