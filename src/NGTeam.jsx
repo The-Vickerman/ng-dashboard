@@ -546,19 +546,48 @@ function NGTeam() {
           <div style={{fontSize:"0.7rem",color:"#484f58",marginBottom:12}}>
             Real data: every case binned by its actual close date into the ISO week it closed in. {WEEKLY_BUCKET_LABELS.length} weeks, Jan–Oct 2026. Hover a bar for the exact count in each bucket that week. Responds to Region and Case Type filters above.
           </div>
-          <div style={{display:"flex",alignItems:"flex-end",gap:3,height:220,minWidth:WEEKLY_BUCKET_LABELS.length*16,paddingBottom:4}}>
-            {weeklyData.map((w,i)=>{
-              const n = w.n || 1;
-              const tooltip = `Week of ${WEEKLY_BUCKET_LABELS[i]} (n=${w.n})\n0-10d: ${w["0-10"]}\n11-20d: ${w["11-20"]}\n21-30d: ${w["21-30"]}\n31-50d: ${w["31-50"]}\n50+d: ${w["50+"]}`;
+          <div style={{position:"relative",height:220,minWidth:WEEKLY_BUCKET_LABELS.length*16,paddingBottom:4}}>
+            <div style={{display:"flex",alignItems:"flex-end",gap:3,height:200,position:"absolute",left:0,top:0}}>
+              {weeklyData.map((w,i)=>{
+                const n = w.n || 1;
+                const tooltip = `Week of ${WEEKLY_BUCKET_LABELS[i]} (n=${w.n})\n0-10d: ${w["0-10"]}\n11-20d: ${w["11-20"]}\n21-30d: ${w["21-30"]}\n31-50d: ${w["31-50"]}\n50+d: ${w["50+"]}`;
+                return (
+                  <div key={i} title={tooltip}
+                    style={{display:"flex",flexDirection:"column-reverse",width:12,height:200,flexShrink:0,borderRadius:"2px 2px 0 0",overflow:"hidden",cursor:"default"}}>
+                    {segs.map(seg=>(
+                      <div key={seg.k} style={{height:w.n?`${100*w[seg.k]/n}%`:"0%",background:seg.color,width:"100%"}} />
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+            {(() => {
+              const maxN = Math.max(1, ...weeklyData.map(w=>w.n));
+              const step = 15; // 12px bar + 3px gap
+              const chartH = 200;
+              const topPad = 10; // keep the peak off the very top edge
+              const pts = weeklyData.map((w,i) => {
+                const x = i*step + 6;
+                const y = chartH - topPad - (w.n/maxN)*(chartH - topPad*2);
+                return {x, y, n:w.n};
+              });
+              const pathD = pts.map((p,i)=>`${i===0?'M':'L'} ${p.x} ${p.y}`).join(' ');
+              const svgW = weeklyData.length*step;
               return (
-                <div key={i} title={tooltip}
-                  style={{display:"flex",flexDirection:"column-reverse",width:12,height:200,flexShrink:0,borderRadius:"2px 2px 0 0",overflow:"hidden",cursor:"default"}}>
-                  {segs.map(seg=>(
-                    <div key={seg.k} style={{height:w.n?`${100*w[seg.k]/n}%`:"0%",background:seg.color,width:"100%"}} />
+                <svg width={svgW} height={chartH} style={{position:"absolute",left:0,top:0,pointerEvents:"none",overflow:"visible"}}>
+                  <path d={pathD} fill="none" stroke="#58a6ff" strokeWidth={2} strokeLinejoin="round" opacity={0.9} />
+                  {pts.map((p,i)=>(
+                    <circle key={i} cx={p.x} cy={p.y} r={2.5} fill="#58a6ff" opacity={0.9}>
+                      <title>{`Week of ${WEEKLY_BUCKET_LABELS[i]}: ${p.n} total closed`}</title>
+                    </circle>
                   ))}
-                </div>
+                </svg>
               );
-            })}
+            })()}
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginTop:6,fontSize:"0.68rem",color:"#58a6ff"}}>
+            <div style={{width:16,height:2,background:"#58a6ff"}} />
+            Total cases closed that week (right-hand scale, line peak = {Math.max(...weeklyData.map(w=>w.n))})
           </div>
           <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.65rem",color:"#484f58",marginTop:4,minWidth:WEEKLY_BUCKET_LABELS.length*16}}>
             <span>{WEEKLY_BUCKET_LABELS[0]}</span>
