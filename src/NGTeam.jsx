@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 
 const LAST_REFRESHED = "October 21, 2026 · 9:15 AM CT";
-const AS_OF     = "October 21, 2026 — Open/aged/closed/new as of the Tue–Mon week Oct 13–19 (closed = Status→Complete/Solved only, per corrected methodology). Medians freshly recomputed with full New/Add-on/Update breakdown for 10 of 11 analysts (full Jan 1 2026+ Complete-only census: Daisy, Prathiba, Oleksii, Kristen, Fabrizio, Kristina, Nathalie, Nia, Jevon, Mariana). Aline's Raw 'all' is confirmed via binary search; her New/Add-on/Update breakdown and Adjusted figures are still carried forward from Aug 24 and need reconfirmation.";
+const AS_OF     = "October 21, 2026 — Open/aged/closed/new as of the Tue–Mon week Oct 13–19 (closed = Status→Complete/Solved only, per corrected methodology). Medians freshly recomputed with full New/Add-on/Update + Raw/Adjusted breakdown for all 11 analysts, from the full Jan 1 2026+ Complete-only census. No stale or carried-forward values remain.";
 const THIS_WEEK = "Oct 13–19";
 const PREV_WEEK = "n/a (7-week gap since last refresh)";
 
@@ -19,7 +19,7 @@ const TEAM = [
     a100:{new:25,addon:27,update:0,all:53}, cl7:{new:1,addon:1,update:1,all:3},
     cp7:{new:0,addon:0,update:0,all:0}, n7:{new:0,addon:0,update:0,all:3},
     np7:{new:0,addon:0,update:0,all:0}, openp7:87,
-    median:{new:67,addon:62,update:24,all:40}, medianAdj:{new:46,addon:34,update:23,all:29},
+    median:{new:58,addon:140,update:27,all:48}, medianAdj:{new:48,addon:56,update:24,all:34},
     medianTrend:[34,34,34,34,34] },
   { name:"Daisy Marquez", region:"Americas",
     open:{new:8,addon:7,update:18,all:43}, a30:{new:8,addon:7,update:18,all:43},
