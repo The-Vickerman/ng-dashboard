@@ -93,6 +93,44 @@ const TEAM = [
     medianTrend:[34,34,34,34,34] },
 ];
 
+const BUCKET_ORDER = ["0-10", "11-20", "21-30", "31-50", "50+"];
+
+const TIME_BUCKETS = {
+  team: { raw: {"0-10": 86, "11-20": 78, "21-30": 91, "31-50": 183, "50+": 444}, adj: {"0-10": 108, "11-20": 109, "21-30": 109, "31-50": 177, "50+": 379}, n: 882 },
+  byAnalyst: {
+    "Aline Ventura": { raw: {"0-10": 18, "11-20": 16, "21-30": 32, "31-50": 27, "50+": 90}, adj: {"0-10": 24, "11-20": 25, "21-30": 30, "31-50": 37, "50+": 67}, n: 183 },
+    "Daisy Marquez": { raw: {"0-10": 1, "11-20": 0, "21-30": 0, "31-50": 1, "50+": 2}, adj: {"0-10": 1, "11-20": 0, "21-30": 0, "31-50": 1, "50+": 2}, n: 4 },
+    "Jevon Jackson": { raw: {"0-10": 10, "11-20": 15, "21-30": 11, "31-50": 41, "50+": 68}, adj: {"0-10": 11, "11-20": 23, "21-30": 15, "31-50": 37, "50+": 59}, n: 145 },
+    "Kristen Whitman": { raw: {"0-10": 13, "11-20": 4, "21-30": 5, "31-50": 9, "50+": 28}, adj: {"0-10": 17, "11-20": 5, "21-30": 5, "31-50": 9, "50+": 23}, n: 59 },
+    "Kristina Quirouette": { raw: {"0-10": 1, "11-20": 3, "21-30": 3, "31-50": 8, "50+": 47}, adj: {"0-10": 3, "11-20": 4, "21-30": 6, "31-50": 6, "50+": 43}, n: 62 },
+    "Mariana Freitas": { raw: {"0-10": 10, "11-20": 21, "21-30": 13, "31-50": 42, "50+": 58}, adj: {"0-10": 14, "11-20": 23, "21-30": 22, "31-50": 36, "50+": 49}, n: 144 },
+    "Nia Gillenwater": { raw: {"0-10": 9, "11-20": 9, "21-30": 18, "31-50": 14, "50+": 66}, adj: {"0-10": 13, "11-20": 12, "21-30": 21, "31-50": 15, "50+": 55}, n: 116 },
+    "Fabrizio Ramirez": { raw: {"0-10": 5, "11-20": 9, "21-30": 4, "31-50": 22, "50+": 31}, adj: {"0-10": 5, "11-20": 13, "21-30": 5, "31-50": 19, "50+": 29}, n: 71 },
+    "Nathalie Lesmes": { raw: {"0-10": 17, "11-20": 1, "21-30": 4, "31-50": 18, "50+": 45}, adj: {"0-10": 18, "11-20": 4, "21-30": 4, "31-50": 16, "50+": 43}, n: 85 },
+    "Oleksii Kosenko": { raw: {"0-10": 0, "11-20": 0, "21-30": 0, "31-50": 0, "50+": 3}, adj: {"0-10": 0, "11-20": 0, "21-30": 0, "31-50": 0, "50+": 3}, n: 3 },
+    "Prathiba Seetharaman": { raw: {"0-10": 2, "11-20": 0, "21-30": 1, "31-50": 1, "50+": 6}, adj: {"0-10": 2, "11-20": 0, "21-30": 1, "31-50": 1, "50+": 6}, n: 10 },
+  }
+};
+
+// Real open-backlog snapshots pulled during live refreshes across this conversation.
+// NOT an evenly-spaced weekly series (gaps reflect actual refresh cadence) - shown as dated
+// points, not fabricated weekly continuity. Accumulate real weekly points going forward.
+const OPEN_HISTORY_DATES = ["Aug 12", "Aug 14", "Aug 17", "Aug 24", "Sep 1", "Oct 21"];
+const OPEN_HISTORY_TEAM = [659, 660, 658, 651, 637, 578];
+const OPEN_HISTORY_BY_ANALYST = {
+  "Aline Ventura": [103, 103, 106, 120, 114, 87],
+  "Daisy Marquez": [53, 53, 52, 50, 50, 43],
+  "Jevon Jackson": [88, 84, 81, 72, 66, 54],
+  "Kristen Whitman": [8, 8, 10, 11, 11, 9],
+  "Kristina Quirouette": [73, 71, 69, 71, 71, 52],
+  "Mariana Freitas": [63, 63, 66, 53, 53, 60],
+  "Nia Gillenwater": [68, 71, 69, 67, 65, 29],
+  "Fabrizio Ramirez": [68, 73, 71, 68, 67, 74],
+  "Nathalie Lesmes": [49, 49, 49, 52, 52, 74],
+  "Oleksii Kosenko": [50, 49, 45, 42, 43, 88],
+  "Prathiba Seetharaman": [36, 36, 40, 45, 45, 8],
+};
+
 const REASON_LABELS = { new:"New", addon:"Add-on", update:"Update", all:"All" };
 
 function Sparkline({ data, width=80, height=28 }) {
@@ -162,6 +200,8 @@ function NGTeam() {
   const [sortCol, setSortCol] = useState("open");
   const [sortDir, setSortDir] = useState("desc");
   const [showTrend, setShowTrend] = useState(false);
+  const [showBuckets, setShowBuckets] = useState(false);
+  const [showOpenTrend, setShowOpenTrend] = useState(false);
 
   const filtered = useMemo(() =>
     TEAM.filter(r => region === "All" || r.region === region), [region]);
@@ -282,6 +322,16 @@ function NGTeam() {
             {showTrend ? "Hide Trend" : "📈 Show 5-Week Trend"}
           </button>
         </div>
+        <div>
+          <button style={s.btn(showBuckets)} onClick={()=>setShowBuckets(t=>!t)}>
+            {showBuckets ? "Hide Time Buckets" : "⏱️ Show Time-to-Close Buckets"}
+          </button>
+        </div>
+        <div>
+          <button style={s.btn(showOpenTrend)} onClick={()=>setShowOpenTrend(t=>!t)}>
+            {showOpenTrend ? "Hide Backlog Trend" : "📊 Show Backlog Trend"}
+          </button>
+        </div>
       </div>
 
       {/* Summary cards */}
@@ -382,6 +432,153 @@ function NGTeam() {
           </table>
           <div style={{marginTop:8,fontSize:"0.7rem",color:"#484f58"}}>
             Median computed from actual case-level data (CreatedDate → close date). Capped at 365d to exclude compliance bulk-closes. Colour: green &lt;50d · amber 50–100d · red &gt;100d.
+          </div>
+        </div>
+      )}
+
+      {/* Time-to-Close Buckets panel */}
+      {showBuckets && (
+        <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:8,padding:"16px",marginBottom:20,overflowX:"auto"}}>
+          <div style={{fontSize:"0.85rem",fontWeight:600,color:"#58a6ff",marginBottom:4}}>
+            ⏱️ Time-to-Close Distribution ({medMode==="raw"?"Raw":"Adjusted"} days) — full Jan 1 2026+ Complete-only census
+          </div>
+          <div style={{fontSize:"0.7rem",color:"#484f58",marginBottom:12}}>
+            Target: ≤15 days. The 0–10 and 11–20 buckets together roughly span that target — bolded divider marks it.
+          </div>
+          {(() => {
+            const bk = medMode === "raw" ? "raw" : "adj";
+            const teamB = TIME_BUCKETS.team[bk];
+            const teamN = TIME_BUCKETS.team.n;
+            return (
+              <table style={{...s.table, fontSize:"0.8rem"}}>
+                <thead>
+                  <tr>
+                    <th style={s.th}>Analyst</th>
+                    <th style={{...s.th,textAlign:"right"}}>n</th>
+                    {BUCKET_ORDER.map((b,i)=>(
+                      <th key={b} style={{...s.th,textAlign:"right",
+                        borderRight: i===1 ? "2px solid #58a6ff" : undefined}}>{b}d</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map(row=>{
+                    const d = TIME_BUCKETS.byAnalyst[row.name];
+                    if (!d) return null;
+                    const db = d[bk];
+                    return (
+                      <tr key={row.name}>
+                        <td style={s.td}><strong>{row.name}</strong></td>
+                        <td style={s.tdR}>{d.n}</td>
+                        {BUCKET_ORDER.map((b,i)=>{
+                          const cnt = db[b];
+                          const pct = d.n ? Math.round(100*cnt/d.n) : 0;
+                          return (
+                            <td key={b} style={{...s.tdR,
+                              borderRight: i===1 ? "2px solid #58a6ff" : undefined}}>
+                              {cnt} <span style={{color:"#8b949e",fontSize:"0.72rem"}}>({pct}%)</span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr style={{background:"#1a2236"}}>
+                    <td style={{...s.td,fontWeight:700,color:"#58a6ff",borderTop:"2px solid #30363d"}}>Team Total</td>
+                    <td style={{...s.tdR,fontWeight:700,borderTop:"2px solid #30363d"}}>{teamN}</td>
+                    {BUCKET_ORDER.map((b,i)=>{
+                      const cnt = teamB[b];
+                      const pct = Math.round(100*cnt/teamN);
+                      return (
+                        <td key={b} style={{...s.tdR,fontWeight:700,borderTop:"2px solid #30363d",
+                          borderRight: i===1 ? "2px solid #58a6ff" : undefined}}>
+                          {cnt} <span style={{color:"#8b949e",fontWeight:400,fontSize:"0.72rem"}}>({pct}%)</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tfoot>
+              </table>
+            );
+          })()}
+          <div style={{marginTop:8,fontSize:"0.72rem",color:"#484f58"}}>
+            {(() => {
+              const bk = medMode === "raw" ? "raw" : "adj";
+              const teamB = TIME_BUCKETS.team[bk];
+              const teamN = TIME_BUCKETS.team.n;
+              const within15ish = teamB["0-10"] + teamB["11-20"];
+              const pct = Math.round(100*within15ish/teamN);
+              return `${within15ish} of ${teamN} cases (${pct}%) closed within ~20 days, the closest bucket boundary to the 15-day target. ${teamB["50+"]} cases (${Math.round(100*teamB["50+"]/teamN)}%) took over 50 days.`;
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Backlog Trend panel */}
+      {showOpenTrend && (
+        <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:8,padding:"16px",marginBottom:20,overflowX:"auto"}}>
+          <div style={{fontSize:"0.85rem",fontWeight:600,color:"#58a6ff",marginBottom:4}}>
+            📊 Open Backlog Trend — Team & Individual
+          </div>
+          <div style={{fontSize:"0.7rem",color:"#fa0",marginBottom:12}}>
+            ⚠️ These are real snapshots pulled during live refreshes, not an evenly-spaced weekly series — gaps reflect actual refresh cadence (Aug 12 → Oct 21). Genuine weekly history starts accumulating from here forward.
+          </div>
+          <table style={{...s.table, fontSize:"0.8rem"}}>
+            <thead>
+              <tr>
+                <th style={s.th}>Analyst</th>
+                {OPEN_HISTORY_DATES.map(d=><th key={d} style={{...s.th,textAlign:"right"}}>{d}</th>)}
+                <th style={{...s.th,textAlign:"center"}}>Trend</th>
+                <th style={{...s.th,textAlign:"right"}}>Net Δ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map(row=>{
+                const h = OPEN_HISTORY_BY_ANALYST[row.name];
+                if (!h) return null;
+                const net = h[h.length-1] - h[0];
+                return (
+                  <tr key={row.name}>
+                    <td style={s.td}><strong>{row.name}</strong></td>
+                    {h.map((v,i)=>{
+                      const prev = i>0 ? h[i-1] : null;
+                      const color = prev===null ? "#c9d1d9" : v>prev ? "#e55" : v<prev ? "#4c4" : "#888";
+                      return <td key={i} style={{...s.tdR,color}}>{v}</td>;
+                    })}
+                    <td style={{...s.td,textAlign:"center"}}><Sparkline data={h} /></td>
+                    <td style={s.tdR}>
+                      <span style={{color:net>0?"#e55":net<0?"#4c4":"#888",fontWeight:600}}>
+                        {net>0?"▲":net<0?"▼":"—"}{net!==0?Math.abs(net):""}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr style={{background:"#1a2236"}}>
+                <td style={{...s.td,fontWeight:700,color:"#58a6ff",borderTop:"2px solid #30363d"}}>Team Total</td>
+                {OPEN_HISTORY_TEAM.map((v,i)=>{
+                  const prev = i>0 ? OPEN_HISTORY_TEAM[i-1] : null;
+                  const color = prev===null ? "#58a6ff" : v>prev ? "#e55" : v<prev ? "#4c4" : "#888";
+                  return <td key={i} style={{...s.tdR,color,fontWeight:700,borderTop:"2px solid #30363d"}}>{v}</td>;
+                })}
+                <td style={{...s.td,textAlign:"center",borderTop:"2px solid #30363d"}}>
+                  <Sparkline data={OPEN_HISTORY_TEAM} />
+                </td>
+                <td style={{...s.tdR,fontWeight:700,borderTop:"2px solid #30363d"}}>
+                  {(()=>{
+                    const net = OPEN_HISTORY_TEAM[OPEN_HISTORY_TEAM.length-1] - OPEN_HISTORY_TEAM[0];
+                    return <span style={{color:net>0?"#e55":"#4c4"}}>{net>0?"▲":"▼"}{Math.abs(net)}</span>;
+                  })()}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+          <div style={{marginTop:8,fontSize:"0.72rem",color:"#484f58"}}>
+            Green = backlog shrank vs prior snapshot · Red = backlog grew. Net Δ = change from first to last snapshot shown.
           </div>
         </div>
       )}
